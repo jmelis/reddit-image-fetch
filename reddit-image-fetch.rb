@@ -6,6 +6,7 @@ require 'json'
 require 'pp'
 require 'fileutils'
 require 'net/http'
+require 'nokogiri'
 
 DB = SQLite3::Database.new("reddit.db")
 DB.execute("CREATE TABLE IF NOT EXISTS image
@@ -19,8 +20,20 @@ def handle_jpg(link, filename)
     `wget -q #{link} -O #{filename}`
 end
 
+def handle_imgur_7(link, filename)
+    page = Nokogiri::HTML(open(link))
+    begin
+        link = "http:" + page.css("#image img")[0]["src"]
+    rescue Exception => e
+        error(e.message)
+    end
+
+    handle_jpg(link, filename)
+end
+
 HANDLES = {
-    /jpg$/i => "jpg"
+    /jpg$/i => "jpg",
+    /imgur\.com\/.{7}$/ => "imgur_7"
 }
 
 subr = "earthporn"
