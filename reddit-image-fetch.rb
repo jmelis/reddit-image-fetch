@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+DIRNAME = File.dirname(__FILE__)
+
 require 'open-uri'
 require 'sqlite3'
 require 'json'
@@ -9,7 +11,8 @@ require 'net/http'
 require 'nokogiri'
 require 'colorize'
 
-DB = SQLite3::Database.new("reddit.db")
+DB = SQLite3::Database.new(File.join(DIRNAME,"reddit.db"))
+
 DB.execute("CREATE TABLE IF NOT EXISTS image
     (id text, subreddit text, link text, title text, permalink text, UNIQUE (id))")
 
@@ -75,7 +78,7 @@ def process(subr)
         link      = data["url"]
         title     = data["title"]
         permalink = data["permalink"]
-        filename  = File.join subreddit, "#{id}.jpg"
+        filename  = File.join DIRNAME, subreddit, "#{id}.jpg"
 
         rows = DB.execute('SELECT * FROM image WHERE id = ?',id)
 
@@ -108,7 +111,7 @@ def process(subr)
             next
         end
 
-        FileUtils.mkdir_p(subreddit)
+        FileUtils.mkdir_p(File.dirname(filename))
 
         if !File.exists?(filename)
             puts "Downloading: #{title}".colorize(:green)
