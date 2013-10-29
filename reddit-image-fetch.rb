@@ -135,7 +135,7 @@ def process(subr)
         FileUtils.mkdir_p(File.dirname(filename))
 
         if !File.exists?(filename)
-            puts "Downloading: #{title}".colorize(:green)
+            puts "Downloading: #{subr} - #{title}".colorize(:green)
             send(handle,link,filename)
         else
             puts "Skipping: #{title}".colorize(:yellow)
