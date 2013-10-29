@@ -15,6 +15,8 @@ DB = SQLite3::Database.new(File.join(DIRNAME,"reddit.db"))
 
 DB.execute("CREATE TABLE IF NOT EXISTS image
     (id text, subreddit text, link text, title text, permalink text, UNIQUE (id))")
+DB.execute("CREATE TABLE IF NOT EXISTS handle_errors
+    (error text, UNIQUE (error))")
 
 def error(msg)
     STDERR.puts "Errror: #{msg}".colorize(:red)
@@ -119,6 +121,11 @@ def process(subr)
 
         if handle.nil?
             error("No handle for #{link}")
+            begin
+                DB.execute("INSERT INTO handle_errors (error) VALUES (?)", link)
+            rescue
+            end
+
             next
         elsif handle == false
             puts "Skipping: #{title}".colorize(:yellow)
