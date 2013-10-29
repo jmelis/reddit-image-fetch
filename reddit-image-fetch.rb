@@ -24,6 +24,7 @@ HANDLES = {
     %r{jpg$}i       => "jpg",
     %r{imgur\.com}  => "imgur",
     %r{flickr\.com} => "flickr",
+    %r{500px\.com} => "500px",
     %r{reddit\.com} => false
 }
 
@@ -52,6 +53,19 @@ def handle_flickr(link, filename)
 
     begin
         link = page.css("#allsizes-photo img")[0]["src"]
+    rescue Exception => e
+        error("**#{__method__}** " + e.message)
+        return
+    end
+
+    handle_jpg(link, filename)
+end
+
+def handle_500px(link, filename)
+    page = Nokogiri::HTML(open(link))
+
+    begin
+        link = page.css(".nude_placeholder img")[0]["src"]
     rescue Exception => e
         error("**#{__method__}** " + e.message)
         return
